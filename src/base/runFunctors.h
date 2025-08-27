@@ -74,7 +74,7 @@ __global__ void __launch_bounds__(DEFAULT_NBLOCKS) performFunctor(Accessor res, 
 #ifdef USE_CUDA
     auto site = calcReadInd(blockDim, blockIdx, threadIdx);
 #elif defined USE_HIP
-auto site = calcReadInd(dim3(blockDim), GetUint3(dim3(blockIdx)), GetUint3(dim3(threadIdx)));
+auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 #endif
     res.setElement(calcWriteInd(site), op(site));
 }
@@ -94,7 +94,7 @@ __global__ void __launch_bounds__(DEFAULT_NBLOCKS_LOOP) performFunctorLoop(Acces
 #ifdef USE_CUDA
     auto site = calcReadInd(blockDim, blockIdx, threadIdx);
 #elif defined USE_HIP
-    auto site = calcReadInd(dim3(blockDim), GetUint3(dim3(blockIdx)), GetUint3(dim3(threadIdx)));
+    auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 #endif
     op.initialize(site);
 // #ifdef USE_CUDA
@@ -120,7 +120,7 @@ __global__ void __launch_bounds__(DEFAULT_NBLOCKS_CONST) performCopyConstObject(
 #ifdef USE_CUDA
     auto site = calcReadInd(blockDim, blockIdx, threadIdx);
 #elif defined USE_HIP
-    auto site = calcReadInd(dim3(blockDim), GetUint3(dim3(blockIdx)), GetUint3(dim3(threadIdx)));
+    auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 #endif
     res.setElement(calcWriteInd(site), ob);
 }
@@ -180,7 +180,7 @@ void RunFunctors<onDevice, Accessor>::iterateFunctor(Functor op, CalcReadInd cal
                     for (size_t thread_z = 0; thread_z < blockDim.z; thread_z++) {
                         threadIdx.z = thread_z;
 
-                        auto site = calcReadInd(blockDim, blockIdx, threadIdx);
+                        auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 
                         size_t i = blockDim.x * blockIdx.x + threadIdx.x;
                         if (i >= elems_x) {
@@ -257,7 +257,7 @@ void RunFunctors<onDevice, Accessor>::iterateFunctorLoop(Functor op,
                         if (i >= elems_x) {
                             continue;
                         }
-                        auto site = calcReadInd(blockDim, blockIdx, threadIdx);
+                        auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 
                         op.initialize(site);
 
@@ -331,7 +331,7 @@ void RunFunctors<onDevice, Accessor>::iterateWithConstObject(Object ob, CalcRead
                         if (i >= elems_x) {
                             continue;
                         }
-                        auto site = calcReadInd(blockDim, blockIdx, threadIdx);
+                        auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 
                         resAcc.setElement(calcWriteInd(site), ob);
                     }
@@ -356,7 +356,7 @@ __global__ void __launch_bounds__(DEFAULT_NBLOCKS) performFunctorNoReturn(Functo
 #ifdef USE_CUDA
     auto site = calcReadInd(blockDim, blockIdx, threadIdx);
 #elif defined USE_HIP
-    auto site = calcReadInd(dim3(blockDim), GetUint3(dim3(blockIdx)), GetUint3(dim3(threadIdx)));
+    auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
 #endif
     op(site);
 }
@@ -420,7 +420,7 @@ void iterateFunctorNoReturn(Functor op, CalcReadInd calcReadInd, const size_t el
                         if (i >= elems_x) {
                             continue;
                         }
-                        auto site = calcReadInd(blockDim, blockIdx, threadIdx);
+                        auto site = calcReadInd(dim3(blockDim.x, blockDim.y, blockDim.z), GetUint3(dim3(blockIdx.x, blockIdx.y, blockIdx.z)), GetUint3(dim3(threadIdx.x,threadIdx.y,threadIdx.z)));
                         op(site);
                     }
                 }
